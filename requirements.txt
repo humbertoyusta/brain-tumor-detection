@@ -3,6 +3,7 @@ pandas
 numpy
 matplotlib
 torch
+torchvision
 opencv-python
 seaborn
 scikit-learn

@@ -10,3 +10,4 @@ scikit-learn
 albumentations
 tqdm
 kaggle
+shap

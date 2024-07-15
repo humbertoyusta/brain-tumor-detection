@@ -30,4 +30,23 @@ def load_images(data_root_folder="data", image_size=(224, 224)):
         images.append(img)
         labels.append(0)
 
+    second_data_folder = os.path.join(data_root_folder, "brain_tumor_dataset")
+
+    second_pos_folder = os.path.join(second_data_folder, "yes")
+    second_neg_folder = os.path.join(second_data_folder, "no")
+
+    for img_name in os.listdir(second_pos_folder):
+        img = cv2.imread(os.path.join(second_pos_folder, img_name))
+        img = cv2.resize(img, image_size)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        images.append(img)
+        labels.append(1)
+
+    for img_name in os.listdir(second_neg_folder):
+        img = cv2.imread(os.path.join(second_neg_folder, img_name))
+        img = cv2.resize(img, image_size)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        images.append(img)
+        labels.append(0)
+
     return np.array(images), np.array(labels)

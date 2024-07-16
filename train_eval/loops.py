@@ -1,4 +1,3 @@
-import tqdm
 import torch
 import sklearn.metrics
 
@@ -7,7 +6,7 @@ def train_epoch(model, loader, criterion, optimizer, device):
     model.train()
     train_loss = 0
 
-    for inputs, targets in tqdm.tqdm(loader):
+    for inputs, targets in loader:
         inputs, targets = inputs.to(device), targets.to(device)
 
         optimizer.zero_grad()

@@ -1,8 +1,15 @@
 import torch
 import sklearn.metrics
+import torch.utils
 
 
-def train_epoch(model, loader, criterion, optimizer, device):
+def train_epoch(
+    model: torch.nn.Module,
+    loader: torch.utils.data.DataLoader,
+    criterion: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+):
     model.train()
     train_loss = 0
 
@@ -20,7 +27,12 @@ def train_epoch(model, loader, criterion, optimizer, device):
     return train_loss / len(loader)
 
 
-def eval_model(model, loader, criterion, device):
+def eval_model(
+    model: torch.nn.Module,
+    loader: torch.utils.data.DataLoader,
+    criterion: torch.nn.Module,
+    device: torch.device,
+):
     model.eval()
     eval_loss = 0
     correct = 0

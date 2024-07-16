@@ -5,24 +5,30 @@ import tqdm
 import train_eval.loops
 import utils.plots
 import utils.mlflow
+import albumentations
+from typing import Optional, Callable, Tuple, Any, List
 
 
 class ModelTrainer:
     def __init__(
         self,
-        model,
-        optimizer,
-        criterion,
-        device,
-        train_loader,
-        val_loader,
-        test_loader,
-        num_epochs,
-        model_name,
-        mlflow_logging=False,
-        train_transform=None,
-        test_transform=None,
-        plot=False,
+        model: torch.nn.Module,
+        optimizer: torch.optim.Optimizer,
+        criterion: torch.nn.Module,
+        device: torch.device,
+        train_loader: torch.utils.data.DataLoader,
+        val_loader: torch.utils.data.DataLoader,
+        test_loader: torch.utils.data.DataLoader,
+        num_epochs: int,
+        model_name: str,
+        mlflow_logging: bool = False,
+        train_transform: Optional[albumentations.Compose] = None,
+        test_transform: Optional[albumentations.Compose] = None,
+        plot: bool = False,
+        epoch_finished_callback: Optional[
+            Callable[[int, torch.nn.Module], None]
+        ] = None,
+        extra_mlflow_params: List[Tuple[str, Any]] = [],
     ):
         self.model = model
         self.optimizer = optimizer
@@ -37,6 +43,8 @@ class ModelTrainer:
         self.train_transform = train_transform
         self.test_transform = test_transform
         self.plot = plot
+        self.epoch_finished_callback = epoch_finished_callback
+        self.extra_mlflow_params = extra_mlflow_params
 
     def log_initial_params(self):
         mlflow.set_tag("model", self.model_name)
@@ -73,6 +81,10 @@ class ModelTrainer:
         mlflow.log_param("Train Transforms", self.train_transform)
         mlflow.log_param("Test Transforms", self.test_transform)
 
+        if self.extra_mlflow_params:
+            for param_name, param_value in self.extra_mlflow_params:
+                mlflow.log_param(param_name, param_value)
+
     def train(self):
         os.makedirs("checkpoints", exist_ok=True)
 
@@ -108,6 +120,9 @@ class ModelTrainer:
                     mlflow.log_metric("Train Loss", train_loss, epoch)
                     mlflow.log_metric("Validation Loss", val_loss, epoch)
                     mlflow.log_metric("Validation Accuracy", val_acc, epoch)
+
+                if self.epoch_finished_callback:
+                    self.epoch_finished_callback(epoch, self.model)
 
                 progress_bar.set_postfix(
                     {

@@ -1,10 +1,11 @@
 import mlflow
+import numpy as np
 
 
 def log_evaluation_metrics(
     dataset_type: str,
     metrics: dict,
-    confusion_matrix,
+    confusion_matrix: np.ndarray,
 ) -> None:
     mlflow.log_metric(f"{dataset_type} Accuracy", metrics["accuracy"])
     mlflow.log_metric(f"{dataset_type} Precision", metrics["precision"])

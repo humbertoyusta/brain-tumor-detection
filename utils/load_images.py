@@ -1,9 +1,12 @@
 import os
 import cv2
 import numpy as np
+from typing import Tuple
 
 
-def load_images(data_root_folder="data", image_size=(224, 224)):
+def load_images(
+    data_root_folder: str = "data", image_size: Tuple[int, int] = (224, 224)
+) -> Tuple[np.ndarray, np.ndarray]:
     """Load the given images of brain MRI scans and their labels.
     Returns a tuple of two numpy arrays: (images, labels).
     images: numpy array of shape (num_images, image_height, image_width, num_channels) (RGB images)

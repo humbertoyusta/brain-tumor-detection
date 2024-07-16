@@ -1,4 +1,6 @@
 import torch
+import torch.utils.data
+import numpy as np
 import sklearn.metrics
 import torch.utils
 
@@ -9,7 +11,7 @@ def train_epoch(
     criterion: torch.nn.Module,
     optimizer: torch.optim.Optimizer,
     device: torch.device,
-):
+) -> float:
     model.train()
     train_loss = 0
 
@@ -32,7 +34,7 @@ def eval_model(
     loader: torch.utils.data.DataLoader,
     criterion: torch.nn.Module,
     device: torch.device,
-):
+) -> tuple[float, float, np.ndarray]:
     model.eval()
     eval_loss = 0
     correct = 0

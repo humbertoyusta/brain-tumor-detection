@@ -1,9 +1,15 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import numpy as np
+from typing import List
 
 
-def plot_train_and_val_losses(train_losses, val_losses, val_accs):
+def plot_train_and_val_losses(
+    train_losses: List[float],
+    val_losses: List[float],
+    val_accs: List[float],
+) -> None:
     plt.figure(figsize=(8, 4))
 
     plt.subplot(1, 2, 1)
@@ -24,8 +30,11 @@ def plot_train_and_val_losses(train_losses, val_losses, val_accs):
 
 
 def plot_evaluation_result(
-    val_metrics, test_metrics, val_confusion_matrix, test_confusion_matrix
-):
+    val_metrics: dict[str, float],
+    test_metrics: dict[str, float],
+    val_confusion_matrix: np.ndarray,
+    test_confusion_matrix: np.ndarray,
+) -> None:
     df = pd.DataFrame(
         {
             "Validation": [

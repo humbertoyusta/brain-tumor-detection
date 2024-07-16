@@ -1,6 +1,8 @@
 import os
 import torch
+import torch.utils.data
 import mlflow
+import mlflow.pytorch
 import tqdm
 import train_eval.loops
 import utils.plots
@@ -29,7 +31,7 @@ class ModelTrainer:
             Callable[[int, torch.nn.Module], None]
         ] = None,
         extra_mlflow_params: List[Tuple[str, Any]] = [],
-    ):
+    ) -> None:
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
@@ -46,7 +48,7 @@ class ModelTrainer:
         self.epoch_finished_callback = epoch_finished_callback
         self.extra_mlflow_params = extra_mlflow_params
 
-    def log_initial_params(self):
+    def log_initial_params(self) -> None:
         mlflow.set_tag("model", self.model_name)
 
         mlflow.log_param("Number of Epochs", self.num_epochs)
@@ -85,7 +87,7 @@ class ModelTrainer:
             for param_name, param_value in self.extra_mlflow_params:
                 mlflow.log_param(param_name, param_value)
 
-    def train(self):
+    def train(self) -> None:
         os.makedirs("checkpoints", exist_ok=True)
 
         train_losses = []
@@ -137,7 +139,7 @@ class ModelTrainer:
         if self.plot:
             utils.plots.plot_train_and_val_losses(train_losses, val_losses, val_accs)
 
-    def get_final_model(self):
+    def get_final_model(self) -> torch.nn.Module:
         self.model.load_state_dict(
             torch.load(os.path.join("checkpoints", f"{self.model_name}.pth"))
         )
@@ -145,7 +147,7 @@ class ModelTrainer:
             mlflow.pytorch.log_model(self.model, "models")
         return self.model
 
-    def run(self):
+    def run(self) -> torch.nn.Module:
         if self.mlflow_logging:
             self.log_initial_params()
 

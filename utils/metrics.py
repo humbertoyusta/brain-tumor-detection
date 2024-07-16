@@ -1,4 +1,7 @@
-def get_metrics_from_confusion_matrix(confusion_matrix):
+import numpy as np
+
+
+def get_metrics_from_confusion_matrix(confusion_matrix: np.ndarray) -> dict[str, float]:
     """
     Get metrics from confusion matrix
     :param confusion_matrix: confusion matrix

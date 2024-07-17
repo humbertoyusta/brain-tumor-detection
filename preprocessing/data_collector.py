@@ -8,7 +8,7 @@ from typing import Tuple
 
 
 class DataCollector:
-    def __init__(self, data_root_folder: str = "data"):
+    def __init__(self, data_root_folder: str = "data") -> None:
         self.data_root_folder = data_root_folder
         self.positive_images_count = {
             "train": 0,
@@ -24,7 +24,7 @@ class DataCollector:
         np.random.seed(0)
         sklearn.random.seed(0)
 
-    def download_data(self):
+    def download_data(self) -> None:
         os.makedirs(self.data_root_folder, exist_ok=True)
 
         kaggle.api.authenticate()
@@ -91,7 +91,7 @@ class DataCollector:
 
         return np.array(images), np.array(labels)
 
-    def _save_image(self, img, label, folder):
+    def _save_image(self, img: np.ndarray, label: int, folder: str) -> None:
         if label == 0:
             img_name = self.negative_images_count[folder]
             self.negative_images_count[folder] += 1
@@ -112,7 +112,7 @@ class DataCollector:
         images: np.ndarray,
         labels: np.ndarray,
         split_ratio: Tuple[float, float, float] = (0.75, 0.125, 0.125),
-    ):
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         train_images, remaining_images, train_labels, remaining_labels = (
             sklearn.model_selection.train_test_split(
                 images,
@@ -131,18 +131,28 @@ class DataCollector:
             )
         )
 
-        for i, (img, label) in enumerate(zip(train_images, train_labels)):
+        for img, label in zip(train_images, train_labels):
             self._save_image(img, label, "train")
 
-        for i, (img, label) in enumerate(zip(val_images, val_labels)):
+        for img, label in zip(val_images, val_labels):
             self._save_image(img, label, "val")
 
-        for i, (img, label) in enumerate(zip(test_images, test_labels)):
+        for img, label in zip(test_images, test_labels):
             self._save_image(img, label, "test")
 
-    def run(self, should_download=True) -> Tuple[np.ndarray, np.ndarray]:
+        return (
+            train_images,
+            val_images,
+            test_images,
+            train_labels,
+            val_labels,
+            test_labels,
+        )
+
+    def run(
+        self, should_download=True
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         if should_download:
             self.download_data()
         images, labels = self.load_images()
-        self.split_and_store(images, labels)
-        return images, labels
+        return self.split_and_store(images, labels)

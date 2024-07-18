@@ -100,17 +100,17 @@ class DataProcessor:
         print("All images have the same size and number of channels.")
 
     def _load_images(self, filenames: List[str]) -> Tuple[List[np.ndarray], List[int]]:
-        images = []
-        labels = []
+        self.images = []
+        self.labels = []
         for filename in filenames:
             img = cv2.imread(os.path.join(self.raw_data_folder, filename))
             img = cv2.resize(img, preprocessing.constants.IMAGE_SIZE)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            images.append(img)
-            labels.append(int(filename.split("_")[0]))
+            self.images.append(img)
+            self.labels.append(int(filename.split("_")[0]))
 
-        self._assert_images_sizes_and_channels(images)
-        return images, labels
+        self._assert_images_sizes_and_channels(self.images)
+        return self.images, self.labels
 
     def _save_image(self, img: np.ndarray, label: int, folder: str) -> None:
         if label == 0:

@@ -184,10 +184,18 @@ class DataProcessor:
                     brightness_limit=0.2, contrast_limit=0.2, p=0.5
                 ),
                 albumentations.ShiftScaleRotate(
-                    shift_limit=0.1, scale_limit=0.1, rotate_limit=20, p=0.5
+                    shift_limit=0.02, scale_limit=0.04, rotate_limit=8, p=0.5
                 ),
-                albumentations.ElasticTransform(
-                    alpha=1, sigma=50, alpha_affine=50, p=0.5
+                albumentations.OneOf(
+                    [
+                        albumentations.GridDistortion(
+                            num_steps=5, distort_limit=0.001, p=0.5
+                        ),
+                        albumentations.OpticalDistortion(
+                            distort_limit=0.0005, shift_limit=0.0005, p=0.5
+                        ),
+                    ],
+                    p=0.5,
                 ),
                 albumentations.GaussNoise(var_limit=(10, 50), p=0.5),
                 albumentations.Normalize(

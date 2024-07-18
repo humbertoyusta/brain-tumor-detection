@@ -4,25 +4,15 @@ import numpy as np
 import kaggle
 import random
 import sklearn
+import preprocessing.constants
 from typing import Tuple
 
 
 class DataCollector:
     def __init__(self, data_root_folder: str = "data") -> None:
         self.data_root_folder = data_root_folder
-        self.positive_images_count = {
-            "train": 0,
-            "val": 0,
-            "test": 0,
-        }
-        self.negative_images_count = {
-            "train": 0,
-            "val": 0,
-            "test": 0,
-        }
-        random.seed(0)
-        np.random.seed(0)
-        sklearn.random.seed(0)
+        self.positive_images_count = 0
+        self.negative_images_count = 0
 
     def download_data(self) -> None:
         os.makedirs(self.data_root_folder, exist_ok=True)
@@ -41,9 +31,12 @@ class DataCollector:
             unzip=True,
         )
 
-    def load_images(
-        self, image_size: Tuple[int, int] = (224, 224)
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def _load_image(self, filename: str) -> np.ndarray:
+        img = cv2.imread(filename)
+        img = cv2.resize(img, preprocessing.constants.IMAGE_SIZE)
+        return img
+
+    def load_images(self) -> Tuple[np.ndarray, np.ndarray]:
         """Load the given images of brain MRI scans and their labels.
         Returns a tuple of two numpy arrays: (images, labels).
         images: numpy array of shape (num_images, image_height, image_width, num_channels) (RGB images)
@@ -57,17 +50,11 @@ class DataCollector:
         neg_folder = os.path.join(data_folder, "negative")
 
         for img_name in os.listdir(pos_folder):
-            img = cv2.imread(os.path.join(pos_folder, img_name))
-            img = cv2.resize(img, image_size)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            images.append(img)
+            images.append(self._load_image(os.path.join(pos_folder, img_name)))
             labels.append(1)
 
         for img_name in os.listdir(neg_folder):
-            img = cv2.imread(os.path.join(neg_folder, img_name))
-            img = cv2.resize(img, image_size)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            images.append(img)
+            images.append(self._load_image(os.path.join(neg_folder, img_name)))
             labels.append(0)
 
         second_data_folder = os.path.join(self.data_root_folder, "brain_tumor_dataset")
@@ -76,36 +63,30 @@ class DataCollector:
         second_neg_folder = os.path.join(second_data_folder, "no")
 
         for img_name in os.listdir(second_pos_folder):
-            img = cv2.imread(os.path.join(second_pos_folder, img_name))
-            img = cv2.resize(img, image_size)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            images.append(img)
+            images.append(self._load_image(os.path.join(second_pos_folder, img_name)))
             labels.append(1)
 
         for img_name in os.listdir(second_neg_folder):
-            img = cv2.imread(os.path.join(second_neg_folder, img_name))
-            img = cv2.resize(img, image_size)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            images.append(img)
+            images.append(self._load_image(os.path.join(second_neg_folder, img_name)))
             labels.append(0)
 
         return np.array(images), np.array(labels)
 
-    def _save_image(self, img: np.ndarray, label: int, folder: str) -> None:
+    def _save_image(self, img: np.ndarray, label: int) -> None:
         if label == 0:
-            img_name = self.negative_images_count[folder]
-            self.negative_images_count[folder] += 1
-            folder = os.path.join(self.data_root_folder, folder, "negative")
+            img_name = f"0_{self.negative_images_count}"
+            self.negative_images_count += 1
         else:
-            img_name = self.positive_images_count[folder]
-            self.positive_images_count[folder] += 1
-            folder = os.path.join(self.data_root_folder, folder, "positive")
+            img_name = f"1_{self.positive_images_count}"
+            self.positive_images_count += 1
 
+        folder = os.path.join(self.data_root_folder, "raw")
         os.makedirs(folder, exist_ok=True)
-        cv2.imwrite(
-            os.path.join(folder, f"{img_name}.png"),
-            cv2.cvtColor(img, cv2.COLOR_RGB2BGR),
-        )
+        cv2.imwrite(os.path.join(folder, f"{img_name}.png"), img)
+
+    def save_images(self, images: np.ndarray, labels: np.ndarray) -> None:
+        for img, label in zip(images, labels):
+            self._save_image(img, label)
 
     def split_and_store(
         self,
@@ -149,10 +130,9 @@ class DataCollector:
             test_labels,
         )
 
-    def run(
-        self, should_download=True
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def run(self, should_download=True) -> Tuple[np.ndarray, np.ndarray]:
         if should_download:
             self.download_data()
         images, labels = self.load_images()
-        return self.split_and_store(images, labels)
+        self.save_images(images, labels)
+        return images, labels

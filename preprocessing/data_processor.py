@@ -87,6 +87,18 @@ class DataProcessor:
 
         return self.duplicates_to_remove
 
+    def _assert_images_sizes_and_channels(self, images: List[np.ndarray]) -> None:
+        """Asserts that all images have the same size and number of channels."""
+
+        for i, img in enumerate(images):
+            assert img.shape == preprocessing.constants.IMAGE_SIZE + (3,)
+            assert img.dtype == np.uint8
+
+            if i > 0:
+                assert img.shape == images[i - 1].shape
+
+        print("All images have the same size and number of channels.")
+
     def _load_images(self, filenames: List[str]) -> Tuple[List[np.ndarray], List[int]]:
         images = []
         labels = []
@@ -96,6 +108,8 @@ class DataProcessor:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             images.append(img)
             labels.append(int(filename.split("_")[0]))
+
+        self._assert_images_sizes_and_channels(images)
         return images, labels
 
     def _save_image(self, img: np.ndarray, label: int, folder: str) -> None:
@@ -244,7 +258,9 @@ class DataProcessor:
             print("Number of duplicates removed:", duplicates_removed)
 
         print(
-            "Number of images after removing corrupted and duplicated images:",
+            "Number of images after removing corrupted",
+            "and duplicated" if self.remove_duplicates else "",
+            "images:",
             len(filenames),
         )
 

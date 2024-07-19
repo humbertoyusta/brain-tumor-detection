@@ -7,6 +7,7 @@ Main project for Industrial Machine Learning course at Harbour.Space University 
 [Slides about experiments](https://docs.google.com/presentation/d/1q3enluvHo8W3Bu0Q_yl7RypwO3J-KBCnXjBT3jnZ4Ag/edit?usp=sharing)
 
 ### Project components
+----------------------------------
 
 [Exploratory data analysis](eda/eda.ipynb)
 - Duplication examples visualization
@@ -42,3 +43,37 @@ Main project for Industrial Machine Learning course at Harbour.Space University 
     * Trained from scratch
 - [ResNet-18](models/resnet18.ipynb)
     * Fine tuned 
+
+
+### Instructions
+----------------------------------
+
+Clone repo and cd into it
+
+```{bash}
+git clone git@github.com:humbertoyusta/brain-tumor-detection.git
+cd brain-tumor-detection
+```
+
+(Using SSH, can also be done using HTTPS)
+
+Create activate virtual environment (recommended)
+
+```{bash}
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Install dependencies
+
+```{bash}
+pip install -r requirements.txt
+```
+
+Start the mlflow tracking server (needed for training and evaluating models with logging to ML Flow)
+
+```{bash}
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+You are set! You can run notebooks, for example training [ResNet-18](models/resnet18.ipynb), [baseline CNN](models/baseline.ipynb) or [EDA](eda/eda.ipynb)

@@ -19,7 +19,6 @@
             align-items: center;
             background-color: #fafafa;
             font-size: 14px;
-            font-family: Arial, sans-serif;
             color: #222222;
         }
         header {
@@ -87,7 +86,6 @@
         .custom-file-upload .file-name {
             flex-grow: 1;
             padding: 10px;
-            
             border-left: 1px solid #ddd;
             background-color: white;
             border-top-right-radius: 5px;
@@ -108,9 +106,13 @@
             width: 100%;
             border-radius: 5px;
             padding: 10px;
-            cursor: pointer;
+            cursor: not-allowed;
             background-color: #fafafa;
             font-size: 14px;
+        }
+        form button.enabled {
+            cursor: pointer;
+            background-color: #f9f9f9;
         }
         #image-preview {
             width: 80vw;
@@ -168,7 +170,7 @@
             <input type="file" id="image-input" accept="image/*" required>
         </label>
         <img id="image-preview" src="{{ url_for('static', filename='images/placeholder.png') }}" alt="Image Preview">
-        <button type="submit">Detect</button>
+        <button type="submit" id="detect-button" disabled>Detect</button>
         <div id="result"></div>
     </form>
 
@@ -176,6 +178,7 @@
         document.getElementById('image-input').addEventListener('change', function(event) {
             const file = event.target.files[0];
             const fileNameSpan = document.querySelector('.file-name');
+            const detectButton = document.getElementById('detect-button');
             if (file) {
                 fileNameSpan.textContent = file.name;
                 const reader = new FileReader();
@@ -185,8 +188,12 @@
                     img.style.display = 'block';
                 };
                 reader.readAsDataURL(file);
+                detectButton.disabled = false;
+                detectButton.classList.add('enabled');
             } else {
                 fileNameSpan.textContent = 'No file chosen';
+                detectButton.disabled = true;
+                detectButton.classList.remove('enabled');
             }
         });
 

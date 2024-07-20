@@ -14,12 +14,7 @@ class ModelExecutor:
         self.transform = self._get_transform()
 
     def _get_device(self):
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-        elif torch.backends.mps.is_available():
-            return torch.device("mps")
-        else:
-            return torch.device("cpu")
+        return torch.device("cpu")
 
     def _get_transform(self):
         return albumentations.Compose(

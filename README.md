@@ -70,6 +70,8 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
+To be able to collect data from kaggle, if you haven't done it yet, go to your [kaggle account settings](https://www.kaggle.com/settings), create a new token, and place it in `~/.kaggle/kaggle.json`
+
 Start the mlflow tracking server (needed for training and evaluating models with logging to ML Flow)
 
 ```{bash}

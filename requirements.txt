@@ -13,3 +13,4 @@ kaggle
 shap
 mlflow
 imagededup
+flask

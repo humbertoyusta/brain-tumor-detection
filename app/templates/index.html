@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tumor Prediction from Brain MRI Images</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fafafa;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            color: #222222;
+        }
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 0px 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        header .header-left {
+            display: flex;
+            align-items: center;
+        }
+        header img {
+            max-width: 64px;
+        }
+        .title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        @media screen and (max-width: 600px) {
+            .title {
+                font-size: 14px;
+            }
+        }
+        header .description {
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+        }
+        form {
+            background: white;
+            display: flex;
+            position: relative;
+            align-items: center;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .custom-file-upload {
+            display: inline-flex;
+            width: 100%;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+        }
+        .custom-file-upload .upload-btn {
+            background-color: #fafafa;
+            padding: 10px;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            font-size: 14px;
+        }
+        .custom-file-upload .file-name {
+            flex-grow: 1;
+            padding: 10px;
+            
+            border-left: 1px solid #ddd;
+            background-color: white;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            font-size: 14px;
+            text-align: left;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        img {
+            width: 80vw;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+        }
+        form button {
+            border: 1px solid #ddd;
+            width: 100%;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fafafa;
+            font-size: 14px;
+        }
+        #image-preview {
+            width: 80vw;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+        }
+        #result {
+            width: 100%;
+            position: relative;
+        }
+        .result-container {
+            display: flex;
+            width: 100%;
+            position: relative;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            padding: 10px;
+        }
+        .result-part {
+            flex: 1;
+            padding: 4px 10px;
+            border-right: 1px solid #ddd;
+            text-align: center;
+        }
+        .result-part:last-child {
+            border-right: none;
+        }
+        .tumor {
+            background-color: #f8e5e7;
+            color: #721c24;
+        }
+        .no-tumor {
+            background-color: #e9f8fa;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+            <div class="title">Brain Tumor Detection</div>
+        </div>
+        <div class="description">Detecting presence of glioblastoma tumor in the brain from MRI image</div>
+    </header>
+
+    <form id="upload-form" enctype="multipart/form-data">
+        <h2 class="title">Upload Brain MRI Image</h2>
+        <label class="custom-file-upload">
+            <span class="upload-btn">Choose File</span>
+            <span class="file-name">No file chosen</span>
+            <input type="file" id="image-input" accept="image/*" required>
+        </label>
+        <img id="image-preview" src="{{ url_for('static', filename='images/placeholder.png') }}" alt="Image Preview">
+        <button type="submit">Detect</button>
+        <div id="result"></div>
+    </form>
+
+    <script>
+        document.getElementById('image-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const fileNameSpan = document.querySelector('.file-name');
+            if (file) {
+                fileNameSpan.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('image-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileNameSpan.textContent = 'No file chosen';
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('image', document.getElementById('image-input').files[0]);
+
+            fetch('/api/v1/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                const predictionClass = data.prediction ? 'tumor' : 'no-tumor';
+                const predictionText = data.prediction ? 'Predicted: Tumor' : 'Predicted: No Tumor';
+                const logitText = `Logit: ${data.logit.toFixed(5)}`;
+                resultDiv.innerHTML = `
+                    <div class="result-container ${predictionClass}">
+                        <div class="result-part">${predictionText}</div>
+                        <div class="result-part">${logitText}</div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error;
+            });
+        });
+    </script>
+</body>
+</html>

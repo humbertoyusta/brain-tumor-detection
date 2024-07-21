@@ -42,11 +42,35 @@ Main project for Industrial Machine Learning course at Harbour.Space University 
 - [Baseline CNN](models/baseline.ipynb)
     * Trained from scratch
 - [ResNet-18](models/resnet18.ipynb)
-    * Fine tuned 
+    * Fine-tuned 
+- [ResNet-34](models/resnet34.ipynb)
+    * Fine-tuned
+- [ResNet-50](models/resnet50.ipynb)
+    * Fine-tuned
+    * Best performing model
+- [EfficientNet-B1](models/efficientnet_b1.ipynb)
+    * Fine-tuned
+- [DenseNet-121](models/densenet121.ipynb)
+    * Fine-tuned
 
+#### Demo application
+
+- [Inference module](app/inference.py)
+    * Performs real-time inference of best performing model (ResNet-50)
+    * Input: one image
+    * Output: prediction, binary and logit
+- [Flask server](app/app.py)
+    * Provides an [API](app/api.py) for real-time inference using the [inference module](app/inference.py)
+    * Includes a demo [front-end template](app/templates/index.html) to test the model, supporting image upload and prediction
+- [Build action](.github/workflows/build.yml)
+    * GitHub Action for building the web application
+    * Builds the docker image, using the [dockerfile](Dockerfile) and the [docker compose yml](docker-compose.build.yml)
+    * Registers the image to [docker hub](https://hub.docker.com/repository/docker/hyusta/brain-tumor-detection/general)
 
 ### Instructions
 ----------------------------------
+
+#### Local development
 
 Clone repo and cd into it
 
@@ -79,3 +103,31 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
 ```
 
 You are set! You can run notebooks, for example training [ResNet-18](models/resnet18.ipynb), [baseline CNN](models/baseline.ipynb) or [EDA](eda/eda.ipynb)
+
+It is also possible to run the application in docker using:
+
+```
+docker compose up
+```
+
+#### Deploying the application
+
+Find the latest tag to deploy (or alternatively find a specific tag to deploy)
+
+```{bash}
+export DOCKER_TAG=$(curl --silent "https://api.github.com/repos/humbertoyusta/brain-tumor-detection/tags" | grep '"name":' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1)
+```
+
+Fetch docker compose file
+
+```{bash}
+wget -O docker-compose.prod.yml https://raw.githubusercontent.com/humbertoyusta/brain-tumor-detection/$DOCKER_TAG/docker-compose.prod.yml
+```
+
+Spin up the application container
+
+```{bash}
+docker compose -f docker-compose.prod.yml up -d
+```
+
+You are set!, the application should be running on `localhost:5000`

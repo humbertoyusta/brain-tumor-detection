@@ -1,0 +1,9 @@
+.venv/
+.DS_Store
+/data/
+/checkpoints/
+.env
+__pycache__/
+/mlruns/
+/mlflow.db
+/airflow/

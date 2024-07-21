@@ -30,8 +30,7 @@ class ModelExecutor:
         )
 
     def _load_model(self):
-        model = torch.load(os.path.join("app", "model.pth"))
-        model.to(self.device)
+        model = torch.load(os.path.join("app", "model.pth"), map_location=self.device)
         model.eval()
         return model
 

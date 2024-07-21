@@ -181,21 +181,31 @@ class DataProcessor:
                 ),
                 albumentations.HorizontalFlip(p=0.5),
                 albumentations.RandomBrightnessContrast(
-                    brightness_limit=0.2, contrast_limit=0.2, p=0.5
+                    brightness_limit=(-0.12, 0.12), contrast_limit=(-0.2, 0.2), p=1
                 ),
                 albumentations.ShiftScaleRotate(
-                    shift_limit=0.02, scale_limit=0.04, rotate_limit=8, p=0.5
+                    shift_limit=0.05,
+                    scale_limit=0.08,
+                    rotate_limit=20,
+                    p=1,
+                    border_mode=cv2.BORDER_CONSTANT,
                 ),
                 albumentations.OneOf(
                     [
                         albumentations.GridDistortion(
-                            num_steps=5, distort_limit=0.001, p=0.5
+                            num_steps=5,
+                            distort_limit=0.25,
+                            p=0.5,
+                            border_mode=cv2.BORDER_CONSTANT,
                         ),
                         albumentations.OpticalDistortion(
-                            distort_limit=0.0005, shift_limit=0.0005, p=0.5
+                            distort_limit=0.05,
+                            shift_limit=0.05,
+                            p=0.5,
+                            border_mode=cv2.BORDER_CONSTANT,
                         ),
                     ],
-                    p=0.5,
+                    p=0.75,
                 ),
                 albumentations.GaussNoise(var_limit=(10, 50), p=0.5),
                 albumentations.Normalize(

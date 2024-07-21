@@ -1,10 +1,9 @@
 pandas==2.2.2
 numpy==1.26.4
-torch==2.3.1
-torchvision==0.18.1
-opencv-python==4.10.0.84
+opencv-python-headless==4.10.0.84
 scikit-learn==1.5.1
 albumentations==1.4.11
-imagededup==0.3.1
 flask==3.0.3
 gunicorn==22.0.0
+torch@https://download.pytorch.org/whl/cpu/torch-2.3.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+torchvision@https://download.pytorch.org/whl/cpu/torchvision-0.18.1-cp311-cp311-linux_aarch64.whl

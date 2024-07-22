@@ -38,20 +38,43 @@ Main project for Industrial Machine Learning course at Harbour.Space University 
     * Log model metrics on test and validation datasets to mlflow
     * Optionally plot losses, confusion matrix and other metrics (accuracy, precision, recall, F1)
 
+#### Model pipeline
+
+Prefect [flow](pipelines/flows/model_pipeline.py) that includes:
+- [Data collection](pipelines/tasks/data_collection.py)
+- [Data processing](pipelines/tasks/data_processing.py)
+- [Model training](pipelines/tasks/model_training.py)
+- [Model evaluation](pipelines/tasks/model_evaluation.py)
+
 #### Models trained
-- [Baseline CNN](models/baseline.ipynb)
+
+For each model, a training Prefect flow or pipeline is built to train the model in a simple way. Additionally, a notebook is provided for experimentation.
+
+- Baseline CNN
     * Trained from scratch
-- [ResNet-18](models/resnet18.ipynb)
-    * Fine-tuned 
-- [ResNet-34](models/resnet34.ipynb)
+    * [Training pipeline](pipelines/models/baseline.py)
+    * [Training notebook](model_notebooks/baseline.ipynb)
+- ResNet-18
     * Fine-tuned
-- [ResNet-50](models/resnet50.ipynb)
+    * [Training pipeline](pipelines/models/resnet18.py)
+    * [Training notebook](model_notebooks/resnet18.ipynb) 
+- ResNet-34
     * Fine-tuned
-    * Best performing model
-- [EfficientNet-B1](models/efficientnet_b1.ipynb)
+    * [Training pipeline](pipelines/models/resnet34.py)
+    * [Training notebook](model_notebooks/resnet34.ipynb)
+- ResNet-50
     * Fine-tuned
-- [DenseNet-121](models/densenet121.ipynb)
+    * [Training pipeline](pipelines/models/resnet50.py)
+    * [Training notebook](model_notebooks/resnet50.ipynb)
+- EfficientNet-B1
     * Fine-tuned
+    * Used in app, best performing on mlflow experiments was taken
+    * [Training pipeline](pipelines/models/efficientnet_b1.py)
+    * [Training notebook](model_notebooks/efficientnet_b1.ipynb)
+- DenseNet-121
+    * Fine-tuned
+    * [Training pipeline](pipelines/models/densenet121.py)
+    * [Training notebook](model_notebooks/densenet121.ipynb)
 
 #### Demo application
 
@@ -102,7 +125,37 @@ Start the mlflow tracking server (needed for training and evaluating models with
 mlflow ui --backend-store-uri sqlite:///mlflow.db
 ```
 
-You are set! You can run notebooks, for example training [ResNet-18](models/resnet18.ipynb), [baseline CNN](models/baseline.ipynb) or [EDA](eda/eda.ipynb)
+Optionally, in order to see the prefect runs, run the prefect server
+```{bash}
+prefect server start
+```
+
+You are set! You can run notebooks, for example training [ResNet-18](models/resnet18.ipynb), [baseline CNN](models/baseline.ipynb) or [EDA](eda/eda.ipynb), or run some of the following
+training pipelines:
+
+```{bash}
+python -m pipelines.models.baseline
+```
+
+```{bash}
+python -m pipelines.models.resnet18
+```
+
+```{bash}
+python -m pipelines.models.resnet34
+```
+
+```{bash}
+python -m pipelines.models.resnet50
+```
+
+```{bash}
+python -m pipelines.models.efficientnet_b1
+```
+
+```{bash}
+python -m pipelines.models.densenet121
+```
 
 It is also possible to run the application in docker using:
 
